@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+docling
+chromadb
+sentence-transformers
+pydantic-settings
+openai
+anthropic
+google-generativeai
+langchain-text-splitters
