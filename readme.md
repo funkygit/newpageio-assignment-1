@@ -125,14 +125,15 @@ Custom lightweight orchestration
 
 ---
 
-# 4. Final Architecture
-Docling → Structural Chunking
-        → SentenceTransformers (MiniLM)
-        → ChromaDB  
-        → Retrieval Layer
-        → LLM Adapter Interface
-            ↳ Local LLM (default)
-            ↳ External LLM (future)
+# 4. Final Backend Architecture
+Docling 
+- → Structural Chunking
+    - → SentenceTransformers (MiniLM)
+        - → ChromaDB  
+            - → Retrieval Layer
+                - → LLM Adapter Interface
+                    - Local LLM (default)
+                    - External LLM (future)
 
 
 ---
@@ -252,6 +253,22 @@ Reason:
 ---
 
 # 9. Future Evolution Path
+
+Next steps which will polish the current app to be more user friendly -
+
+- Create docker file easier hosting in other environments.
+- Show list of documents already available in the RAG
+- Option to delete a document
+- Fix duplicate ingestion
+- Add input validation on the chat endpoint (message length limit, injestion checks)
+- Improve the system prompt to handle edge cases — e.g., when no relevant context is found (currently retrieval might return low-quality matches with no relevance threshold).
+- Add a relevance score threshold in retrieval.py — filter out results with distance above a threshold instead of blindly returning top-N. ChromaDB distances are L2 by default, so you can set a cutoff.
+- Add structured logging to the chat endpoint (log provider, model, retrieval scores, response time).
+- Return more informative error messages from the backend (e.g., "No documents ingested yet" when ChromaDB is empty).
+- Selective document chat
+- Display citations in the chat response.
+- Switching to SSE to make the chat response streaming more efficient.
+- Other minor UX conveniences
 
 Planned improvements when resources allow:
 
