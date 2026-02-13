@@ -4,7 +4,7 @@ import os
 from openai import OpenAI
 import google.generativeai as genai
 from anthropic import Anthropic
-from .config import get_settings
+from config import get_settings
 
 settings = get_settings()
 
@@ -14,7 +14,7 @@ class BaseLLMProvider(ABC):
         pass
 
 class OllamaProvider(BaseLLMProvider):
-    def generate_stream(self, messages: List[dict], model: str = "llama3") -> Generator[str, None, None]:
+    def generate_stream(self, messages: List[dict], model: str = "llama3.2:latest") -> Generator[str, None, None]:
         # Ollama supports OpenAI-compatible API
         client = OpenAI(
             base_url=f"{settings.OLLAMA_BASE_URL}/v1",

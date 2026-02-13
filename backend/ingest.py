@@ -2,7 +2,7 @@ from docling.document_converter import DocumentConverter
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 import chromadb
-from .config import get_settings
+from config import get_settings
 import os
 import logging
 

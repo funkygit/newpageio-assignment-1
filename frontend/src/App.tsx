@@ -1,12 +1,25 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ChatInterface } from './components/ChatInterface';
 import { FileUpload } from './components/FileUpload';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const queryClient = new QueryClient();
 
 function App() {
   const [provider, setProvider] = useState<'ollama' | 'openai' | 'gemini' | 'anthropic'>('ollama');
+  const [models, setModels] = useState<string[]>([]);
+  const [selectedModel, setSelectedModel] = useState<string>('');
+
+  useEffect(() => {
+    if (provider === 'ollama') {
+      import('./api').then(({ getModels }) => {
+        getModels().then((data) => {
+          setModels(data);
+          if (data.length > 0) setSelectedModel(data[0]);
+        }).catch(console.error);
+      });
+    }
+  }, [provider]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -25,22 +38,38 @@ function App() {
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value as any)}
-              className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
             >
               <option value="ollama">Ollama (Offline)</option>
               <option value="openai">OpenAI</option>
               <option value="gemini">Google Gemini</option>
               <option value="anthropic">Anthropic Claude</option>
             </select>
+
+            {provider === 'ollama' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  {models.map((model) => (
+                    <option key={model} value={model}>{model}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="mt-2 text-xs text-gray-500">
-              {provider === 'ollama' ? 'Default: llama3' : 'Requires API Key'}
+              {provider === 'ollama' ? 'Local Models' : 'Requires API Key'}
             </div>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="flex-1">
-          <ChatInterface provider={provider} />
+          <ChatInterface provider={provider} model={selectedModel} />
         </div>
       </div>
     </QueryClientProvider>

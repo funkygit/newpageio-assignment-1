@@ -1,6 +1,6 @@
 import chromadb
 from sentence_transformers import SentenceTransformer
-from .config import get_settings
+from config import get_settings
 from typing import List, Dict
 
 settings = get_settings()

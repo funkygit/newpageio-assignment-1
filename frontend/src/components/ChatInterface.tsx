@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useMutation } from '@tanstack/react-query';
-import { sendMessage, ChatMessage } from '../api';
+import { sendMessage, type ChatMessage } from '../api';
 import clsx from 'clsx';
 
 interface ChatInterfaceProps {
@@ -64,9 +64,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ provider, model })
                         </div>
                         <div className={clsx("max-w-[80%] rounded-lg p-3 text-sm",
                             msg.role === 'user' ? "bg-blue-500 text-white" : "bg-white border border-gray-200 shadow-sm")}>
-                            <ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert">
-                                {msg.content}
-                            </ReactMarkdown>
+                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                                <ReactMarkdown>
+                                    {msg.content}
+                                </ReactMarkdown>
+                            </div>
                         </div>
                     </div>
                 ))}

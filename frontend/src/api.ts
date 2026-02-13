@@ -38,3 +38,8 @@ export const sendMessage = async (data: ChatRequest) => {
     const response = await api.post<ChatResponse>('/chat', data);
     return response.data;
 };
+
+export const getModels = async () => {
+    const response = await api.get<{ models: string[] }>('/models');
+    return response.data.models;
+};
