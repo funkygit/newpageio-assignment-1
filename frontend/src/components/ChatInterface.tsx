@@ -63,8 +63,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ provider, model })
                             {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                         </div>
                         <div className={clsx("max-w-[80%] rounded-lg p-3 text-sm",
-                            msg.role === 'user' ? "bg-blue-500 text-white" : "bg-white border border-gray-200 shadow-sm")}>
-                            <div className="prose prose-sm max-w-none dark:prose-invert">
+                            msg.role === 'user' ? "bg-blue-500 text-white" : "bg-white border border-gray-200 shadow-sm text-gray-900")}>
+                            <div className={clsx("prose prose-sm max-w-none text-gray-900", msg.role === 'user' ? "text-white" : "")}>
                                 <ReactMarkdown>
                                     {msg.content}
                                 </ReactMarkdown>
