@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ChatInterface } from './components/ChatInterface';
 import { FileUpload } from './components/FileUpload';
+import { DocumentList } from './components/DocumentList';
 import { useState, useEffect } from 'react';
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ function App() {
           </div>
 
           <FileUpload />
+          <DocumentList />
 
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-2">LLM Provider</label>

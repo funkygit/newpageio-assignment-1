@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import shutil
 import os
 import httpx
+import chromadb
 from config import get_settings
 from models import ChatRequest, ChatResponse, UploadResponse, DocumentSource
 from llm_provider import get_llm_provider
@@ -23,6 +24,7 @@ app.add_middleware(
 settings = get_settings()
 UPLOAD_DIR = "./uploaded_docs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+chroma_client = chromadb.PersistentClient(path=settings.CHROMA_PATH)
 
 @app.post("/upload", response_model=UploadResponse)
 async def upload_document(file: UploadFile = File(...)):
@@ -71,6 +73,58 @@ async def chat(request: ChatRequest):
             
         sources = [DocumentSource(source=d['source'], content_snippet=d['content'][:200]) for d in context_docs]
         return ChatResponse(response=response_content, sources=sources)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/documents")
+async def list_documents():
+    """List all ingested documents with their chunk counts."""
+    try:
+        collection = chroma_client.get_or_create_collection(name="rag_documents")
+        all_metadata = collection.get(include=["metadatas"])
+        
+        if not all_metadata["metadatas"]:
+            return {"documents": []}
+        
+        # Aggregate by document_id
+        doc_map = {}
+        for meta in all_metadata["metadatas"]:
+            doc_id = meta.get("document_id", "Unknown")
+            if doc_id not in doc_map:
+                doc_map[doc_id] = {
+                    "document_id": doc_id,
+                    "source": meta.get("source", doc_id),
+                    "chunks": 0,
+                    "embedding_model": meta.get("embedding_model", "unknown"),
+                }
+            doc_map[doc_id]["chunks"] += 1
+        
+        return {"documents": list(doc_map.values())}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/documents/{document_id}")
+async def delete_document(document_id: str):
+    """Delete all chunks for a given document from ChromaDB."""
+    try:
+        collection = chroma_client.get_or_create_collection(name="rag_documents")
+        
+        # Check if document exists
+        existing = collection.get(where={"document_id": document_id}, include=["metadatas"])
+        if not existing["metadatas"]:
+            raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found.")
+        
+        chunk_count = len(existing["metadatas"])
+        collection.delete(where={"document_id": document_id})
+        
+        # Also remove the physical file if it exists
+        file_path = os.path.join(UPLOAD_DIR, document_id)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        return {"status": "deleted", "document_id": document_id, "chunks_removed": chunk_count}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -43,3 +43,20 @@ export const getModels = async () => {
     const response = await api.get<{ models: string[] }>('/models');
     return response.data.models;
 };
+
+export interface DocumentInfo {
+    document_id: string;
+    source: string;
+    chunks: number;
+    embedding_model: string;
+}
+
+export const getDocuments = async () => {
+    const response = await api.get<{ documents: DocumentInfo[] }>('/documents');
+    return response.data.documents;
+};
+
+export const deleteDocument = async (documentId: string) => {
+    const response = await api.delete(`/documents/${encodeURIComponent(documentId)}`);
+    return response.data;
+};

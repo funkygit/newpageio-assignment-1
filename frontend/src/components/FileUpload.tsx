@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
-import { Upload, X, FileText, CheckCircle, AlertCircle } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { uploadDocument } from '../api';
-import clsx from 'clsx';
 
 export const FileUpload: React.FC = () => {
+    const queryClient = useQueryClient();
     const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
     const [fileName, setFileName] = useState('');
     const [chunks, setChunks] = useState(0);
@@ -15,6 +15,7 @@ export const FileUpload: React.FC = () => {
             setStatus('success');
             setFileName(data.filename);
             setChunks(data.chunks);
+            queryClient.invalidateQueries({ queryKey: ['documents'] });
         },
         onError: () => {
             setStatus('error');
